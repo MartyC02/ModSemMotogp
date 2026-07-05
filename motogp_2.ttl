@@ -340,16 +340,16 @@ xsd:date rdf:type rdfs:Datatype .
 :haDataNascita rdf:type owl:DatatypeProperty ;
                rdfs:domain :Persona ;
                rdfs:range xsd:date ;
-               dc:title "ha data nascita"@it ;
-               rdfs:comment "indica la data di nascita"@it .
+               rdfs:comment "indica la data di nascita"@it ;
+               rdfs:label "ha data nascita"@it .
 
 
 ###  http://www.semanticweb.org/motogp/haNazionalita
 :haNazionalita rdf:type owl:DatatypeProperty ;
                rdfs:domain :Persona ;
                rdfs:range xsd:string ;
-               dc:title "ha nazionalità"@it ;
-               rdfs:comment "indica la nazionalità"@it .
+               rdfs:comment "indica la nazionalità"@it ;
+               rdfs:label "ha nazionalità"@it .
 
 
 ###  http://www.semanticweb.org/motogp/haNome
