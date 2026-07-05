@@ -1,0 +1,1545 @@
+@prefix : <http://www.semanticweb.org/motogp/> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix list: <http://www.ontologydesignpatterns.org/cp/owl/list.owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix vann: <http://purl.org/vocab/vann/> .
+@prefix schema: <http://schema.org/> .
+@base <http://www.semanticweb.org/motogp/> .
+
+<http://www.semanticweb.org/motogp/> rdf:type owl:Ontology ;
+                                      owl:imports <http://www.ontologydesignpatterns.org/cp/owl/list.owl> ;
+                                      dc:creator "Martina Celli" ;
+                                      dc:date "2026-06-29"^^xsd:date ;
+                                      dc:description "Ontologia per la rappresentazione del campionato del mondo di MotoGP: piloti, team, costruttori, motociclette, circuiti, gran premi, sessioni e risultati di gara."@it ;
+                                      dc:title "Ontologia MotoGP"@it ;
+                                      vann:preferredNamespacePrefix "motogp" ;
+                                      vann:preferredNamespaceUri "http://www.semanticweb.org/motogp/" ;
+                                      rdfs:label "Ontologia MotoGP"@it .
+
+#################################################################
+#    Annotation properties
+#################################################################
+
+###  http://purl.org/dc/elements/1.1/creator
+dc:creator rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/date
+dc:date rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/description
+dc:description rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/dc/elements/1.1/title
+dc:title rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/vocab/vann/preferredNamespacePrefix
+vann:preferredNamespacePrefix rdf:type owl:AnnotationProperty .
+
+
+###  http://purl.org/vocab/vann/preferredNamespaceUri
+vann:preferredNamespaceUri rdf:type owl:AnnotationProperty .
+
+
+###  http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled
+<http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> rdf:type owl:AnnotationProperty .
+
+
+#################################################################
+#    Datatypes
+#################################################################
+
+###  http://www.w3.org/2001/XMLSchema#date
+xsd:date rdf:type rdfs:Datatype .
+
+
+#################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.semanticweb.org/motogp/compagnoDiTeam
+:compagnoDiTeam rdf:type owl:ObjectProperty ,
+                         owl:SymmetricProperty ;
+                rdfs:domain :Pilota ;
+                rdfs:range :Pilota ;
+                rdfs:comment "Relazione che collega due piloti che corrono per lo stesso Team"@it ;
+                rdfs:label "Compagno di Team"@it .
+
+
+###  http://www.semanticweb.org/motogp/correPer
+:correPer rdf:type owl:ObjectProperty ;
+          owl:inverseOf :schiera ;
+          rdfs:domain :Pilota ;
+          rdfs:range :Team ;
+          rdfs:comment "Collega un pilota al team per cui gareggia."@it ;
+          rdfs:label "corre per"@it .
+
+
+###  http://www.semanticweb.org/motogp/gareggiaIn
+:gareggiaIn rdf:type owl:ObjectProperty ;
+            rdfs:domain :Pilota ;
+            rdfs:range :Categoria ;
+            rdfs:comment "Collega un pilota alla categoria in cui corre."@it ;
+            rdfs:label "gareggia in"@it .
+
+
+###  http://www.semanticweb.org/motogp/granPremioDiStagione
+:granPremioDiStagione rdf:type owl:ObjectProperty ;
+                      owl:inverseOf :haGranPremio ;
+                      rdfs:domain :GranPremio ;
+                      rdfs:range :Stagione ;
+                      rdfs:comment "Collega un gran premio alla stagione di cui fa parte, inversa di haGranPremio"@it ;
+                      rdfs:label "Gran premio di stagione"@it .
+
+
+###  http://www.semanticweb.org/motogp/guidaMoto
+:guidaMoto rdf:type owl:ObjectProperty ;
+           rdfs:domain :Pilota ;
+           rdfs:range :Motocicletta ;
+           owl:propertyChainAxiom ( :correPer
+                                    :utilizzaMoto
+                                  ) ;
+           rdfs:comment "Proprieta' INFERITA via property chain: collega il pilota alla motocicletta che guida tramite il suo team."@it ;
+           rdfs:label "guida la moto"@it .
+
+
+###  http://www.semanticweb.org/motogp/guidaMotoDi
+:guidaMotoDi rdf:type owl:ObjectProperty ;
+             rdfs:domain :Pilota ;
+             rdfs:range :Costruttore ;
+             owl:propertyChainAxiom ( :correPer
+                                      :utilizzaMoto
+                                      :haCostruttore
+                                    ) ;
+             rdfs:comment "Proprieta' INFERITA via property chain: collega il pilota al costruttore della moto del suo team."@it ;
+             rdfs:label "guida la moto di"@it .
+
+
+###  http://www.semanticweb.org/motogp/haCostruttore
+:haCostruttore rdf:type owl:ObjectProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain :Motocicletta ;
+               rdfs:range :Costruttore ;
+               rdfs:comment "Collega una motocicletta al costruttore che la produce. Funzionale."@it ;
+               rdfs:label "ha costruttore"@it .
+
+
+###  http://www.semanticweb.org/motogp/haDominatoWeekend
+:haDominatoWeekend rdf:type owl:ObjectProperty ;
+                   rdfs:domain :Pilota ;
+                   rdfs:range :GranPremio ;
+                   rdfs:comment "Indica un pilota che ha vinto sia la gara sprint sia che gara ufficiale"@it ;
+                   rdfs:label "ha dominato weekend"@it .
+
+
+###  http://www.semanticweb.org/motogp/haGranPremio
+:haGranPremio rdf:type owl:ObjectProperty ;
+              rdfs:domain :Stagione ;
+              rdfs:range :GranPremio ;
+              rdfs:comment "Collega una stagione ai gran premi che compongono il calendario"@it ;
+              rdfs:label "Ha gran premio"@it .
+
+
+###  http://www.semanticweb.org/motogp/haIngegnere
+:haIngegnere rdf:type owl:ObjectProperty ;
+             rdfs:domain :Team ;
+             rdfs:range :Ingegnere ;
+             rdfs:comment "Descrive la relazione che un team ha un ingegnere"@it ;
+             rdfs:label "ha Ingegnere"@it .
+
+
+###  http://www.semanticweb.org/motogp/haPartecipatoAGranPremio
+:haPartecipatoAGranPremio rdf:type owl:ObjectProperty ;
+                          rdfs:domain :Pilota ;
+                          rdfs:range :GranPremio ;
+                          rdfs:comment "Collega un pilota a un gran Premio a cui ha partecipato"@it ;
+                          rdfs:label "ha partecipato a Gran Premio"@it .
+
+
+###  http://www.semanticweb.org/motogp/haRisultato
+:haRisultato rdf:type owl:ObjectProperty ;
+             owl:inverseOf :riguardaGara ;
+             rdfs:domain :Gara ;
+             rdfs:range :RisultatoGara ;
+             rdfs:comment "Collega una gara ai risultati dei piloti."@it ;
+             rdfs:label "ha risultato"@it .
+
+
+###  http://www.semanticweb.org/motogp/haRisultatoPilota
+:haRisultatoPilota rdf:type owl:ObjectProperty ;
+                   owl:inverseOf :riguardaPilota ;
+                   rdfs:domain :Pilota ;
+                   rdfs:range :RisultatoGara ;
+                   rdfs:comment "Collega un pilota ai suoi risultati di gara. Inversa di riguardaPilota"@it ;
+                   rdfs:label "ha risultato pilota"@it .
+
+
+###  http://www.semanticweb.org/motogp/haSessione
+:haSessione rdf:type owl:ObjectProperty ;
+            owl:inverseOf :sessioneDiGranPremio ;
+            rdfs:domain :GranPremio ;
+            rdfs:range :Sessione ;
+            rdfs:comment "Collega un Gran Premio alle sue sessioni (libere, qualifica, gara)."@it ;
+            rdfs:label "ha sessione"@it .
+
+
+###  http://www.semanticweb.org/motogp/haTeamManager
+:haTeamManager rdf:type owl:ObjectProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain :Team ;
+               rdfs:range :TeamManager ;
+               rdfs:comment "Relazione che indica che un team ha un Team manager"@it ;
+               rdfs:label "ha Team Manager"@it .
+
+
+###  http://www.semanticweb.org/motogp/haTeamVincitore
+:haTeamVincitore rdf:type owl:ObjectProperty ;
+                 rdfs:domain :Gara ;
+                 rdfs:range :Team ;
+                 rdfs:comment "Collega una gara al team del pilota vincitore"@it ;
+                 rdfs:label "ha Team vincitore"@it .
+
+
+###  http://www.semanticweb.org/motogp/haVintoGara
+:haVintoGara rdf:type owl:ObjectProperty ;
+             rdfs:domain :Pilota ;
+             rdfs:range :Gara ;
+             rdfs:comment "Collega un pilota a una gara che ha vinto."@it ;
+             rdfs:label "ha vinto gara"@it .
+
+
+###  http://www.semanticweb.org/motogp/ospita
+:ospita rdf:type owl:ObjectProperty ;
+        owl:inverseOf :ospitatoIn ;
+        rdfs:domain :Circuito ;
+        rdfs:range :GranPremio ;
+        rdfs:comment "Collega un circuito ai Gran Premi che ospita."@it ;
+        rdfs:label "ospita"@it .
+
+
+###  http://www.semanticweb.org/motogp/ospitatoIn
+:ospitatoIn rdf:type owl:ObjectProperty ,
+                     owl:FunctionalProperty ;
+            rdfs:domain :GranPremio ;
+            rdfs:range :Circuito ;
+            rdfs:comment "Collega un Gran Premio al circuito che lo ospita. Inversa di ospita."@it ;
+            rdfs:label "ospitato in"@it .
+
+
+###  http://www.semanticweb.org/motogp/precedeInCalendario
+:precedeInCalendario rdf:type owl:ObjectProperty ,
+                              owl:TransitiveProperty ;
+                     rdfs:domain :GranPremio ;
+                     rdfs:range :GranPremio ;
+                     rdfs:comment "Ordina i Gran Premi nel calendario. Transitiva: se A precede B e B precede C, allora A precede C (inferito)."@it ;
+                     rdfs:label "precede in calendario"@it .
+
+
+###  http://www.semanticweb.org/motogp/riguardaGara
+:riguardaGara rdf:type owl:ObjectProperty ,
+                       owl:FunctionalProperty ;
+              rdfs:domain :RisultatoGara ;
+              rdfs:range :Gara ;
+              rdfs:comment "Collega un risultato alla gara a cui si riferisce. Inversa di haRisultato"@it ;
+              rdfs:label "riguarda gara"@it .
+
+
+###  http://www.semanticweb.org/motogp/riguardaGranPremio
+:riguardaGranPremio rdf:type owl:ObjectProperty ;
+                    rdfs:domain :RisultatoGara ;
+                    rdfs:range :GranPremio ;
+                    owl:propertyChainAxiom ( :riguardaGara
+                                             :sessioneDiGranPremio
+                                           ) ;
+                    rdfs:comment "Proprietà inferita tramite property chain: collega un risultato di gara al Gran Premio in cui la gara si svolge"@it ;
+                    rdfs:label "riguarda Gran Premio"@it .
+
+
+###  http://www.semanticweb.org/motogp/riguardaPilota
+:riguardaPilota rdf:type owl:ObjectProperty ,
+                         owl:FunctionalProperty ;
+                rdfs:domain :RisultatoGara ;
+                rdfs:range :Pilota ;
+                rdfs:comment "Collega un risultato di gara al pilota a cui si riferisce."@it ;
+                rdfs:label "riguarda pilota"@it .
+
+
+###  http://www.semanticweb.org/motogp/schiera
+:schiera rdf:type owl:ObjectProperty ;
+         rdfs:domain :Team ;
+         rdfs:range :Pilota ;
+         rdfs:comment "Collega un team ai piloti che mette in pista. Inversa di correPer."@it ;
+         rdfs:label "schiera"@it .
+
+
+###  http://www.semanticweb.org/motogp/sessioneDiGranPremio
+:sessioneDiGranPremio rdf:type owl:ObjectProperty ,
+                               owl:FunctionalProperty ;
+                      rdfs:domain :Sessione ;
+                      rdfs:range :GranPremio ;
+                      rdfs:comment "Collega una sessione al gran premio di cui fa parte, inversa di haSessione"@it ;
+                      rdfs:label "sessione di Gran premio"@it .
+
+
+###  http://www.semanticweb.org/motogp/utilizzaMoto
+:utilizzaMoto rdf:type owl:ObjectProperty ;
+              rdfs:domain :Team ;
+              rdfs:range :Motocicletta ;
+              rdfs:comment "Collega un team alla motocicletta che impiega."@it ;
+              rdfs:label "utilizza moto"@it .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://www.semanticweb.org/motogp/eCampione
+:eCampione rdf:type owl:DatatypeProperty ,
+                    owl:FunctionalProperty ;
+           rdfs:domain :Pilota ;
+           rdfs:range xsd:boolean ;
+           rdfs:comment "Vero se il pilota e' campione del mondo in carica."@it ;
+           rdfs:label "e' campione"@it .
+
+
+###  http://www.semanticweb.org/motogp/haCilindrata
+:haCilindrata rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+              rdfs:domain :Motocicletta ;
+              rdfs:range xsd:integer ;
+              rdfs:comment "Cilindrata in cc della motocicletta."@it ;
+              rdfs:label "ha cilindrata"@it .
+
+
+###  http://www.semanticweb.org/motogp/haCognome
+:haCognome rdf:type owl:DatatypeProperty ;
+           rdfs:domain :Persona ;
+           rdfs:range xsd:string ;
+           rdfs:comment "Cognome della persona."@it ;
+           rdfs:label "ha cognome"@it .
+
+
+###  http://www.semanticweb.org/motogp/haDataGara
+:haDataGara rdf:type owl:DatatypeProperty ,
+                     owl:FunctionalProperty ;
+            rdfs:domain :GranPremio ;
+            rdfs:range xsd:date ;
+            rdfs:comment "Data di svolgimento della gara."@it ;
+            rdfs:label "ha data gara"@it .
+
+
+###  http://www.semanticweb.org/motogp/haDataNascita
+:haDataNascita rdf:type owl:DatatypeProperty ;
+               rdfs:domain :Persona ;
+               rdfs:range xsd:date ;
+               dc:title "ha data nascita"@it ;
+               rdfs:comment "indica la data di nascita"@it .
+
+
+###  http://www.semanticweb.org/motogp/haNazionalita
+:haNazionalita rdf:type owl:DatatypeProperty ;
+               rdfs:domain :Persona ;
+               rdfs:range xsd:string ;
+               dc:title "ha nazionalità"@it ;
+               rdfs:comment "indica la nazionalità"@it .
+
+
+###  http://www.semanticweb.org/motogp/haNome
+:haNome rdf:type owl:DatatypeProperty ;
+        rdfs:domain :Persona ;
+        rdfs:range xsd:string ;
+        rdfs:comment "Nome di battesimo della persona."@it ;
+        rdfs:label "ha nome"@it .
+
+
+###  http://www.semanticweb.org/motogp/haNomeCircuito
+:haNomeCircuito rdf:type owl:DatatypeProperty ;
+                rdfs:domain :Circuito ;
+                rdfs:range xsd:string ;
+                rdfs:comment "Denominazione del circuito."@it ;
+                rdfs:label "ha nome circuito"@it .
+
+
+###  http://www.semanticweb.org/motogp/haNomeEvento
+:haNomeEvento rdf:type owl:DatatypeProperty ;
+              rdfs:domain :GranPremio ;
+              rdfs:range xsd:string ;
+              rdfs:comment "Denominazione ufficiale del Gran Premio."@it ;
+              rdfs:label "ha nome evento"@it .
+
+
+###  http://www.semanticweb.org/motogp/haNomeTeam
+:haNomeTeam rdf:type owl:DatatypeProperty ;
+            rdfs:domain :Team ;
+            rdfs:range xsd:string ;
+            rdfs:comment "Denominazione del team."@it ;
+            rdfs:label "ha nome team"@it .
+
+
+###  http://www.semanticweb.org/motogp/haNumeroGara
+:haNumeroGara rdf:type owl:DatatypeProperty ,
+                       owl:FunctionalProperty ;
+              rdfs:domain :Pilota ;
+              rdfs:range xsd:integer ;
+              rdfs:comment "Numero fisso del pilota."@it ;
+              rdfs:label "ha numero di gara"@it .
+
+
+###  http://www.semanticweb.org/motogp/haNumeroRound
+:haNumeroRound rdf:type owl:DatatypeProperty ,
+                        owl:FunctionalProperty ;
+               rdfs:domain :GranPremio ;
+               rdfs:range xsd:integer ;
+               rdfs:comment "Indica il numero d'ordine del gran premio nel calendario della stagione"@it ;
+               rdfs:label "ha numero round"@it .
+
+
+###  http://www.semanticweb.org/motogp/haPosizione
+:haPosizione rdf:type owl:DatatypeProperty ;
+             rdfs:domain :RisultatoGara ;
+             rdfs:range xsd:integer ;
+             rdfs:comment "Posizione finale del pilota nella gara."@it ;
+             rdfs:label "ha posizione"@it .
+
+
+###  http://www.semanticweb.org/motogp/haPunti
+:haPunti rdf:type owl:DatatypeProperty ;
+         rdfs:domain :RisultatoGara ;
+         rdfs:range xsd:integer ;
+         rdfs:comment "Punti conquistati nella gara."@it ;
+         rdfs:label "ha punti"@it .
+
+
+###  http://www.semanticweb.org/motogp/haStagioniDisputate
+:haStagioniDisputate rdf:type owl:DatatypeProperty ,
+                              owl:FunctionalProperty ;
+                     rdfs:domain :Pilota ;
+                     rdfs:range xsd:integer ;
+                     rdfs:comment "Numero di stagioni disputate dal pilota. Usata per inferire PilotaVeterano."@it ;
+                     rdfs:label "ha stagioni disputate"@it .
+
+
+#################################################################
+#    Classes
+#################################################################
+
+###  http://schema.org/Organization
+schema:Organization rdf:type owl:Class .
+
+
+###  http://schema.org/SportsEvent
+schema:SportsEvent rdf:type owl:Class .
+
+
+###  http://www.semanticweb.org/motogp/Campionato
+:Campionato rdf:type owl:Class ;
+            rdfs:comment "Competizione iridata di una categoria in una stagione."@it ;
+            rdfs:label "Campionato"@it .
+
+
+###  http://www.semanticweb.org/motogp/Categoria
+:Categoria rdf:type owl:Class ;
+           owl:equivalentClass [ rdf:type owl:Class ;
+                                 owl:oneOf ( :Moto2
+                                             :Moto3
+                                             :MotoGP
+                                           )
+                               ] ;
+           rdfs:comment "Classe enumerata: le tre categorie del Motomondiale."@it ;
+           rdfs:label "Categoria"@it .
+
+
+###  http://www.semanticweb.org/motogp/Circuito
+:Circuito rdf:type owl:Class ;
+          rdfs:comment "Tracciato permanente che ospita un Gran Premio."@it ;
+          rdfs:label "Circuito"@it .
+
+
+###  http://www.semanticweb.org/motogp/Costruttore
+:Costruttore rdf:type owl:Class ;
+             rdfs:subClassOf :Organizzazione ;
+             rdfs:comment "Casa motociclistica che produce le moto (es. Ducati, Yamaha, Honda, Aprilia, KTM)."@it ;
+             rdfs:label "Costruttore"@it .
+
+
+###  http://www.semanticweb.org/motogp/Gara
+:Gara rdf:type owl:Class ;
+      rdfs:subClassOf :Sessione ;
+      owl:disjointUnionOf ( :GaraPrincipale
+                            :GaraSprint
+                          ) ;
+      rdfs:comment "Sessione di gara che assegna punti per il campionato."@it ;
+      rdfs:label "Gara"@it .
+
+
+###  http://www.semanticweb.org/motogp/GaraPrincipale
+:GaraPrincipale rdf:type owl:Class ;
+                rdfs:subClassOf :Gara ;
+                rdfs:comment "Gara principale della domenica che assegna punti per il campionato."@it ;
+                rdfs:label "Gara principale"@it .
+
+
+###  http://www.semanticweb.org/motogp/GaraSprint
+:GaraSprint rdf:type owl:Class ;
+            rdfs:subClassOf :Gara ;
+            rdfs:comment "Gara breve del sabato che assegna punteggio ridotto."@it ;
+            rdfs:label "Gara sprint"@it .
+
+
+###  http://www.semanticweb.org/motogp/GranPremio
+:GranPremio rdf:type owl:Class ;
+            rdfs:subClassOf schema:SportsEvent ,
+                            list:ListItem ;
+            rdfs:comment "Evento sportivo di una tappa del campionato, ospitato in un circuito in una data precisa."@it ;
+            rdfs:label "Gran Premio"@it .
+
+
+###  http://www.semanticweb.org/motogp/Ingegnere
+:Ingegnere rdf:type owl:Class ;
+           rdfs:subClassOf :Persona ;
+           rdfs:comment "Persona che cura lo sviluppo tecnico della motocicletta all'interno di un team."@it ;
+           rdfs:label "Ingegnere"@it .
+
+
+###  http://www.semanticweb.org/motogp/Motocicletta
+:Motocicletta rdf:type owl:Class ;
+              rdfs:comment "Prototipo da competizione utilizzato in gara, prodotto da un costruttore."@it ;
+              rdfs:label "Motocicletta"@it .
+
+
+###  http://www.semanticweb.org/motogp/Organizzazione
+:Organizzazione rdf:type owl:Class ;
+                rdfs:subClassOf schema:Organization ;
+                owl:disjointWith :Persona ;
+                rdfs:comment "Ente collettivo che partecipa al campionato (team o costruttore)."@it ;
+                rdfs:label "Organizzazione"@it .
+
+
+###  http://www.semanticweb.org/motogp/Persona
+:Persona rdf:type owl:Class ;
+         rdfs:subClassOf foaf:Person ;
+         rdfs:comment "Essere umano coinvolto nel campionato (pilota, ingegnere, team manager)."@it ;
+         rdfs:label "Persona"@it .
+
+
+###  http://www.semanticweb.org/motogp/Pilota
+:Pilota rdf:type owl:Class ;
+        rdfs:subClassOf :Persona ;
+        rdfs:comment "Persona che gareggia in una categoria del Motomondiale guidando una motocicletta per un team."@it ;
+        rdfs:label "Pilota"@it .
+
+
+###  http://www.semanticweb.org/motogp/PilotaClasseRegina
+:PilotaClasseRegina rdf:type owl:Class ;
+                    owl:equivalentClass [ owl:intersectionOf ( :Pilota
+                                                               [ rdf:type owl:Restriction ;
+                                                                 owl:onProperty :gareggiaIn ;
+                                                                 owl:hasValue :MotoGP
+                                                               ]
+                                                             ) ;
+                                          rdf:type owl:Class
+                                        ] ;
+                    rdfs:comment "Pilota che gareggia nella categoria MotoGP."@it ;
+                    rdfs:label "Pilota classe regina"@it .
+
+
+###  http://www.semanticweb.org/motogp/PilotaDaPodio
+:PilotaDaPodio rdf:type owl:Class ;
+               owl:equivalentClass [ owl:intersectionOf ( :Pilota
+                                                          [ rdf:type owl:Restriction ;
+                                                            owl:onProperty :haRisultatoPilota ;
+                                                            owl:someValuesFrom :RisultatoPodio
+                                                          ]
+                                                        ) ;
+                                     rdf:type owl:Class
+                                   ] ;
+               rdfs:subClassOf :Pilota ;
+               rdfs:comment "Pilota che ha ottenuto almeno un risultato classificato come podio"@it ;
+               rdfs:label "Pilota da podio"@it .
+
+
+###  http://www.semanticweb.org/motogp/PilotaEsordiente
+:PilotaEsordiente rdf:type owl:Class ;
+                  owl:equivalentClass [ owl:intersectionOf ( :Pilota
+                                                             [ rdf:type owl:Restriction ;
+                                                               owl:onProperty :haStagioniDisputate ;
+                                                               owl:hasValue 1
+                                                             ]
+                                                           ) ;
+                                        rdf:type owl:Class
+                                      ] ;
+                  rdfs:comment "Pilota alla sua prima stagione (haStagioniDisputate = 1). Classe DEFINITA, contrapposta a PilotaVeterano."@it ;
+                  rdfs:label "Pilota esordiente"@it .
+
+
+###  http://www.semanticweb.org/motogp/PilotaMoto2
+:PilotaMoto2 rdf:type owl:Class ;
+             owl:equivalentClass [ owl:intersectionOf ( :Pilota
+                                                        [ rdf:type owl:Restriction ;
+                                                          owl:onProperty :gareggiaIn ;
+                                                          owl:hasValue :Moto2
+                                                        ]
+                                                      ) ;
+                                   rdf:type owl:Class
+                                 ] ;
+             rdfs:subClassOf :Pilota ;
+             rdfs:comment "Pilota che gareggia nella categoria Moto2"@it ;
+             rdfs:label "Pilota Moto 2"@it .
+
+
+###  http://www.semanticweb.org/motogp/PilotaMoto3
+:PilotaMoto3 rdf:type owl:Class ;
+             owl:equivalentClass [ owl:intersectionOf ( :Pilota
+                                                        [ rdf:type owl:Restriction ;
+                                                          owl:onProperty :gareggiaIn ;
+                                                          owl:hasValue :Moto3
+                                                        ]
+                                                      ) ;
+                                   rdf:type owl:Class
+                                 ] ;
+             rdfs:subClassOf :Pilota ;
+             rdfs:comment "Pilota che gareggia nella categoria Moto3"@it ;
+             rdfs:label "Pilota Moto 3"@it .
+
+
+###  http://www.semanticweb.org/motogp/PilotaVeterano
+:PilotaVeterano rdf:type owl:Class ;
+                owl:equivalentClass [ owl:intersectionOf ( :Pilota
+                                                           [ rdf:type owl:Restriction ;
+                                                             owl:onProperty :haStagioniDisputate ;
+                                                             owl:someValuesFrom [ rdf:type rdfs:Datatype ;
+                                                                                  owl:onDatatype xsd:integer ;
+                                                                                  owl:withRestrictions ( [ xsd:minInclusive 10
+                                                                                                         ]
+                                                                                                       )
+                                                                                ]
+                                                           ]
+                                                         ) ;
+                                      rdf:type owl:Class
+                                    ] ;
+                rdfs:comment "Pilota con almeno 10 stagioni disputate. Classe DEFINITA: il reasoner la popola in base ad haStagioniDisputate."@it ;
+                rdfs:label "Pilota veterano"@it .
+
+
+###  http://www.semanticweb.org/motogp/PilotaVincente
+:PilotaVincente rdf:type owl:Class ;
+                owl:equivalentClass [ owl:intersectionOf ( :Pilota
+                                                           [ rdf:type owl:Restriction ;
+                                                             owl:onProperty :haRisultatoPilota ;
+                                                             owl:someValuesFrom :RisultatoVittoria
+                                                           ]
+                                                         ) ;
+                                      rdf:type owl:Class
+                                    ] ;
+                rdfs:comment "Pilota che ha vinto almeno un Gran Premio. Classe DEFINITA (restrizione some)."@it ;
+                rdfs:label "Pilota vincente"@it .
+
+
+###  http://www.semanticweb.org/motogp/ProvaLibera
+:ProvaLibera rdf:type owl:Class ;
+             rdfs:subClassOf :Sessione ;
+             rdfs:comment "Sessione di prove libere."@it ;
+             rdfs:label "Prova libera"@it .
+
+
+###  http://www.semanticweb.org/motogp/Qualifica
+:Qualifica rdf:type owl:Class ;
+           rdfs:subClassOf :Sessione ;
+           rdfs:comment "Sessione che determina la griglia di partenza."@it ;
+           rdfs:label "Qualifica"@it .
+
+
+###  http://www.semanticweb.org/motogp/RisultatoGara
+:RisultatoGara rdf:type owl:Class ;
+               rdfs:comment "Esito di un pilota in una specifica gara (posizione e punti)."@it ;
+               rdfs:label "Risultato di gara"@it .
+
+
+###  http://www.semanticweb.org/motogp/RisultatoPodio
+:RisultatoPodio rdf:type owl:Class ;
+                rdfs:subClassOf :RisultatoGara ;
+                rdfs:comment "Risultato di gara in cui il pilota conclude tra la prima e la terza posizione"@it ;
+                rdfs:label "Risultato da podio"@it .
+
+
+###  http://www.semanticweb.org/motogp/RisultatoVittoria
+:RisultatoVittoria rdf:type owl:Class ;
+                   owl:equivalentClass [ owl:intersectionOf ( :RisultatoGara
+                                                              [ rdf:type owl:Restriction ;
+                                                                owl:onProperty :haPosizione ;
+                                                                owl:hasValue 1
+                                                              ]
+                                                            ) ;
+                                         rdf:type owl:Class
+                                       ] ;
+                   rdfs:subClassOf :RisultatoPodio ;
+                   rdfs:comment "Risultato di gara in cui il pilota conclude in prima posizione"@it ;
+                   rdfs:label "Risultato vittoria"@it .
+
+
+###  http://www.semanticweb.org/motogp/Sessione
+:Sessione rdf:type owl:Class ;
+          rdfs:comment "Turno in pista all'interno di un weekend di gara."@it ;
+          rdfs:label "Sessione"@it .
+
+
+###  http://www.semanticweb.org/motogp/Stagione
+:Stagione rdf:type owl:Class ;
+          rdfs:subClassOf list:List ,
+                          [ rdf:type owl:Restriction ;
+                            owl:onProperty :haGranPremio ;
+                            owl:minQualifiedCardinality "3"^^xsd:nonNegativeInteger ;
+                            owl:onClass :GranPremio
+                          ] ;
+          rdfs:comment "Annata agonistica composta da una sequenza di Gran Premi."@it ;
+          rdfs:label "Stagione"@it .
+
+
+###  http://www.semanticweb.org/motogp/Team
+:Team rdf:type owl:Class ;
+      rdfs:subClassOf :Organizzazione ;
+      rdfs:comment "Squadra corse che schiera uno o più piloti e utilizza le moto di un costruttore."@it ;
+      rdfs:label "Team"@it .
+
+
+###  http://www.semanticweb.org/motogp/TeamCompleto
+:TeamCompleto rdf:type owl:Class ;
+              owl:equivalentClass [ owl:intersectionOf ( :Team
+                                                         [ rdf:type owl:Restriction ;
+                                                           owl:onProperty :haIngegnere ;
+                                                           owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                           owl:onClass :Ingegnere
+                                                         ]
+                                                         [ rdf:type owl:Restriction ;
+                                                           owl:onProperty :haTeamManager ;
+                                                           owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                           owl:onClass :TeamManager
+                                                         ]
+                                                         [ rdf:type owl:Restriction ;
+                                                           owl:onProperty :schiera ;
+                                                           owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                                                           owl:onClass :Pilota
+                                                         ]
+                                                       ) ;
+                                    rdf:type owl:Class
+                                  ] ;
+              rdfs:subClassOf :Team ;
+              rdfs:comment "Team che ha almeno un pilota, almeno un ingegnere  e almeno un team manager"@it ;
+              rdfs:label "Team completo"@it .
+
+
+###  http://www.semanticweb.org/motogp/TeamManager
+:TeamManager rdf:type owl:Class ;
+             rdfs:subClassOf :Persona ;
+             rdfs:comment "Persona responsabile della gestione di un team."@it ;
+             rdfs:label "Team manager"@it .
+
+
+###  http://www.semanticweb.org/motogp/TeamSatellite
+:TeamSatellite rdf:type owl:Class ;
+               rdfs:subClassOf :Team ;
+               owl:disjointWith :TeamUfficiale ;
+               rdfs:comment "Team che utilizza le stesse moto di un team Ufficiale ma è un team privato"@it ;
+               rdfs:label "Team satellite"@it .
+
+
+###  http://www.semanticweb.org/motogp/TeamUfficiale
+:TeamUfficiale rdf:type owl:Class ;
+               rdfs:subClassOf :Team ;
+               rdfs:comment "Team ufficiale"@it ;
+               rdfs:label "Team ufficiale"@it .
+
+
+###  http://www.semanticweb.org/motogp/TeamVincente
+:TeamVincente rdf:type owl:Class ;
+              owl:equivalentClass [ owl:intersectionOf ( :Team
+                                                         [ rdf:type owl:Restriction ;
+                                                           owl:onProperty :schiera ;
+                                                           owl:someValuesFrom :PilotaVincente
+                                                         ]
+                                                       ) ;
+                                    rdf:type owl:Class
+                                  ] ;
+              rdfs:comment "Team che schiera almeno un pilota vincente."@it ;
+              rdfs:label "Team vincente"@it .
+
+
+###  http://xmlns.com/foaf/0.1/Person
+foaf:Person rdf:type owl:Class .
+
+
+#################################################################
+#    Individuals
+#################################################################
+
+###  http://www.semanticweb.org/motogp/Acosta
+:Acosta rdf:type owl:NamedIndividual ,
+                 :Pilota ;
+        :gareggiaIn :Moto2 ;
+        :eCampione "false"^^xsd:boolean ;
+        :haCognome "Acosta" ;
+        :haDataNascita "2004-05-25"^^xsd:date ;
+        :haNazionalita "Spagnola" ;
+        :haNome "Pedro" ;
+        :haNumeroGara 51 ;
+        :haStagioniDisputate 2 ;
+        rdfs:comment "Pilota di Moto2. Popola la categoria Moto2 della classe enumerata."@it ;
+        rdfs:label "Pedro Acosta"@it .
+
+
+###  http://www.semanticweb.org/motogp/Assen
+:Assen rdf:type owl:NamedIndividual ,
+                :Circuito ;
+       :haNomeCircuito "TT Circuit Assen" ;
+       rdfs:comment "Circuito olandese."@it ;
+       rdfs:label "Assen"@it .
+
+
+###  http://www.semanticweb.org/motogp/Bagnaia
+:Bagnaia rdf:type owl:NamedIndividual ,
+                  :Pilota ;
+         :correPer :DucatiLenovoTeam ;
+         :gareggiaIn :MotoGP ;
+         :eCampione "true"^^xsd:boolean ;
+         :haCognome "Bagnaia" ;
+         :haDataNascita "1997-01-14"^^xsd:date ;
+         :haNazionalita "Italiana" ;
+         :haNome "Francesco" ;
+         :haNumeroGara 1 ;
+         :haStagioniDisputate 5 ;
+         rdfs:comment "Pilota Ducati, campione in carica 2022/2023."@it ;
+         rdfs:label "Francesco Bagnaia"@it .
+
+
+###  http://www.semanticweb.org/motogp/Bastianini
+:Bastianini rdf:type owl:NamedIndividual ,
+                     :Pilota ;
+            :correPer :DucatiLenovoTeam ;
+            :gareggiaIn :MotoGP ;
+            :eCampione "false"^^xsd:boolean ;
+            :haCognome "Bastianini" ;
+            :haDataNascita "1997-12-30"^^xsd:date ;
+            :haNazionalita "Italiana" ;
+            :haNome "Enea" ;
+            :haNumeroGara 23 ;
+            :haStagioniDisputate 3 ;
+            rdfs:comment "Compagno di team di Bagnaia in Ducati nel 2023."@it ;
+            rdfs:label "Enea Bastianini"@it .
+
+
+###  http://www.semanticweb.org/motogp/DallIgna
+:DallIgna rdf:type owl:NamedIndividual ,
+                   :Ingegnere ;
+          rdfs:comment "Ingegnere associato al team Ducati Lenovo"@it ;
+          rdfs:label "Gigi Dall' Igna"@it .
+
+
+###  http://www.semanticweb.org/motogp/Desmosedici_GP23
+:Desmosedici_GP23 rdf:type owl:NamedIndividual ,
+                           :Motocicletta ;
+                  owl:differentFrom :Desmosedici_GP23_Pramac ;
+                  :haCostruttore :Ducati ;
+                  :haCilindrata 1000 ;
+                  rdfs:comment "Moto del team ufficiale Ducati nel 2023."@it ;
+                  rdfs:label "Ducati Desmosedici GP23 (factory)"@it .
+
+
+###  http://www.semanticweb.org/motogp/Desmosedici_GP23_Pramac
+:Desmosedici_GP23_Pramac rdf:type owl:NamedIndividual ,
+                                  :Motocicletta ;
+                         :haCostruttore :Ducati ;
+                         :haCilindrata 1000 ;
+                         rdfs:comment "Moto del team Pramac (clienti Ducati) nel 2023."@it ;
+                         rdfs:label "Ducati Desmosedici GP23 (Pramac)"@it .
+
+
+###  http://www.semanticweb.org/motogp/Ducati
+:Ducati rdf:type owl:NamedIndividual ,
+                 :Costruttore ;
+        rdfs:comment "Costruttore italiano."@it ;
+        rdfs:label "Ducati"@it .
+
+
+###  http://www.semanticweb.org/motogp/DucatiLenovoTeam
+:DucatiLenovoTeam rdf:type owl:NamedIndividual ,
+                           :TeamUfficiale ;
+                  owl:differentFrom :PramacRacing ;
+                  :haIngegnere :DallIgna ;
+                  :haTeamManager :Tardozzi ;
+                  :utilizzaMoto :Desmosedici_GP23 ;
+                  :haNomeTeam "Ducati Lenovo Team" ;
+                  rdfs:comment "Team ufficiale Ducati."@it ;
+                  rdfs:label "Ducati Lenovo Team"@it .
+
+
+###  http://www.semanticweb.org/motogp/Fernandez
+:Fernandez rdf:type owl:NamedIndividual ,
+                    :Pilota ;
+           :gareggiaIn :MotoGP ;
+           :eCampione "false"^^xsd:boolean ;
+           :haCognome "Fernandez" ;
+           :haDataNascita "1997-09-23"^^xsd:date ;
+           :haNazionalita "Spagnola" ;
+           :haNome "Augusto" ;
+           :haNumeroGara 37 ;
+           :haStagioniDisputate 1 ;
+           rdfs:comment "Esordiente in MotoGP nel 2023. Illustra l'inferenza PilotaEsordiente."@it ;
+           rdfs:label "Augusto Fernandez"@it .
+
+
+###  http://www.semanticweb.org/motogp/GP_Germania_2023
+:GP_Germania_2023 rdf:type owl:NamedIndividual ,
+                           :GranPremio ;
+                  list:nextItem :GP_Olanda_2023 ;
+                  :haSessione :Gara_Germania_2023 ,
+                              :Sprint_Germania_2023 ;
+                  :ospitatoIn :Sachsenring ;
+                  :precedeInCalendario :GP_Olanda_2023 ;
+                  :haDataGara "2023-06-18"^^xsd:date ;
+                  :haNomeEvento "Gran Premio di Germania 2023" ;
+                  :haNumeroRound 7 ;
+                  rdfs:comment "Round 7 del mondiale 2023."@it ;
+                  rdfs:label "GP di Germania 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/GP_Italia_2023
+:GP_Italia_2023 rdf:type owl:NamedIndividual ,
+                         :GranPremio ;
+                list:nextItem :GP_Germania_2023 ;
+                :haSessione :Gara_Italia_2023 ,
+                            :Qualifica_Italia_2023 ,
+                            :Sprint_Italia_2023 ;
+                :ospitatoIn :Mugello ;
+                :precedeInCalendario :GP_Germania_2023 ;
+                :haDataGara "2023-06-11"^^xsd:date ;
+                :haNomeEvento "Gran Premio d'Italia 2023" ;
+                :haNumeroRound 6 ;
+                rdfs:comment "Round 6 del mondiale 2023, vinto da Bagnaia."@it ;
+                rdfs:label "GP d'Italia 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/GP_Olanda_2023
+:GP_Olanda_2023 rdf:type owl:NamedIndividual ,
+                         :GranPremio ;
+                :ospitatoIn :Assen ;
+                :haDataGara "2023-06-25"^^xsd:date ;
+                :haNomeEvento "Gran Premio d'Olanda 2023" ;
+                :haNumeroRound 8 ;
+                rdfs:comment "Round 8 del mondiale 2023."@it ;
+                rdfs:label "GP d'Olanda 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Gara_Germania_2023
+:Gara_Germania_2023 rdf:type owl:NamedIndividual ,
+                             :GaraPrincipale ;
+                    owl:differentFrom :Gara_Italia_2023 ;
+                    rdfs:comment "Gara domenicale del GP di Germania 2023."@it ;
+                    rdfs:label "Gara - GP Germania 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Gara_Italia_2023
+:Gara_Italia_2023 rdf:type owl:NamedIndividual ,
+                           :GaraPrincipale ;
+                  rdfs:comment "Gara domenicale del GP d'Italia 2023."@it ;
+                  rdfs:label "Gara - GP d'Italia 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Holgado
+:Holgado rdf:type owl:NamedIndividual ,
+                  :Pilota ;
+         :gareggiaIn :Moto3 ;
+         :eCampione "false"^^xsd:boolean ;
+         :haCognome "Holgado" ;
+         :haDataNascita "2005-04-27"^^xsd:date ;
+         :haNazionalita "Spagnola" ;
+         :haNome "Daniel" ;
+         :haNumeroGara 96 ;
+         :haStagioniDisputate 2 ;
+         rdfs:comment "Pilota di Moto3. Popola la categoria Moto3 della classe enumerata."@it ;
+         rdfs:label "Daniel Holgado"@it .
+
+
+###  http://www.semanticweb.org/motogp/Martin
+:Martin rdf:type owl:NamedIndividual ,
+                 :Pilota ;
+        :correPer :PramacRacing ;
+        :gareggiaIn :MotoGP ;
+        :eCampione "false"^^xsd:boolean ;
+        :haCognome "Martin" ;
+        :haDataNascita "1998-01-29"^^xsd:date ;
+        :haNazionalita "Spagnolo" ;
+        :haNome "Jorge" ;
+        :haNumeroGara 89 ;
+        :haStagioniDisputate 3 ;
+        rdfs:comment "Pilota Pramac, 2o classificato al GP d'Italia 2023."@it ;
+        rdfs:label "Jorge Martin"@it .
+
+
+###  http://www.semanticweb.org/motogp/Moto2
+:Moto2 rdf:type owl:NamedIndividual ,
+                :Categoria ;
+       rdfs:comment "Categoria intermedia (765cc)."@it ;
+       rdfs:label "Moto2"@it .
+
+
+###  http://www.semanticweb.org/motogp/Moto3
+:Moto3 rdf:type owl:NamedIndividual ,
+                :Categoria ;
+       rdfs:comment "Categoria d'ingresso (250cc)."@it ;
+       rdfs:label "Moto3"@it .
+
+
+###  http://www.semanticweb.org/motogp/MotoGP
+:MotoGP rdf:type owl:NamedIndividual ,
+                 :Categoria ;
+        rdfs:comment "Categoria regina (1000cc)."@it ;
+        rdfs:label "MotoGP"@it .
+
+
+###  http://www.semanticweb.org/motogp/Mugello
+:Mugello rdf:type owl:NamedIndividual ,
+                  :Circuito ;
+         :haNomeCircuito "Autodromo Internazionale del Mugello" ;
+         rdfs:comment "Circuito che ospita il GP d'Italia."@it ;
+         rdfs:label "Mugello"@it .
+
+
+###  http://www.semanticweb.org/motogp/PramacRacing
+:PramacRacing rdf:type owl:NamedIndividual ,
+                       :TeamSatellite ;
+              :utilizzaMoto :Desmosedici_GP23_Pramac ;
+              :haNomeTeam "Prima Pramac Racing" ;
+              rdfs:comment "Team satellite Ducati."@it ;
+              rdfs:label "Pramac Racing"@it .
+
+
+###  http://www.semanticweb.org/motogp/Qualifica_Italia_2023
+:Qualifica_Italia_2023 rdf:type owl:NamedIndividual ,
+                                :Qualifica ;
+                       rdfs:comment "Sessione di qualifica del Gran Premio d'Italia 2023"@it ;
+                       rdfs:label "Qualifica - GP D' Italia 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Risultato_Bagnaia_Germania2023
+:Risultato_Bagnaia_Germania2023 rdf:type owl:NamedIndividual ,
+                                         :RisultatoGara ;
+                                :riguardaGara :Gara_Germania_2023 ;
+                                :riguardaPilota :Bagnaia ;
+                                :haPosizione 2 ;
+                                rdfs:comment "Risultato del pilota Bagnaia alla gara ufficiale GP Germania 2023"@it ;
+                                rdfs:label "Risultato Bagnaia - GP Germania 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Risultato_Bagnaia_Italia2023
+:Risultato_Bagnaia_Italia2023 rdf:type owl:NamedIndividual ,
+                                       :RisultatoGara ;
+                              :riguardaGara :Gara_Italia_2023 ;
+                              :riguardaPilota :Bagnaia ;
+                              :haPosizione 1 ;
+                              :haPunti 25 ;
+                              rdfs:comment "Risultato del pilota Bagnaia alla gara ufficiale GP d'Italia 2023"@it ;
+                              rdfs:label "Risultato Bagnaia - GP d'Italia 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Risultato_Bagnaia_Sprint2023
+:Risultato_Bagnaia_Sprint2023 rdf:type owl:NamedIndividual ,
+                                       :RisultatoGara ;
+                              :riguardaGara :Sprint_Italia_2023 ;
+                              :riguardaPilota :Bagnaia ;
+                              :haPosizione 1 ;
+                              rdfs:comment "Risultato della Sprint del GP d'italia, in cui Bagnaia conclude in prima posizione"@it ;
+                              rdfs:label "Risultato bagnaia gara sprint Italia"@it .
+
+
+###  http://www.semanticweb.org/motogp/Risultato_Bagnaia_Sprint_Germania2023
+:Risultato_Bagnaia_Sprint_Germania2023 rdf:type owl:NamedIndividual ,
+                                                :RisultatoGara ;
+                                       :riguardaGara :Sprint_Germania_2023 ;
+                                       :riguardaPilota :Bagnaia ;
+                                       :haPosizione 2 ;
+                                       rdfs:comment "Risultato della Sprint del GP Germania"@it ;
+                                       rdfs:label "Risultato bagnaia gara sprint di Germania"@it .
+
+
+###  http://www.semanticweb.org/motogp/Risultato_Martin_Germania2023
+:Risultato_Martin_Germania2023 rdf:type owl:NamedIndividual ,
+                                        :RisultatoGara ;
+                               :riguardaGara :Gara_Germania_2023 ;
+                               :riguardaPilota :Martin ;
+                               :haPosizione 1 ;
+                               rdfs:comment "Risultato Martin - GP di Germania 2023"@it ;
+                               rdfs:label "Risultato del pilota Martin alla gara ufficiale GP della Germania 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Risultato_Martin_Sprint_Germania2023
+:Risultato_Martin_Sprint_Germania2023 rdf:type owl:NamedIndividual ,
+                                               :RisultatoGara ;
+                                      :riguardaGara :Sprint_Germania_2023 ;
+                                      :riguardaPilota :Martin ;
+                                      :haPosizione 1 ;
+                                      rdfs:comment "Risultato della Sprint del GP Germania, in cui Martin conclde in prima posizione"@it ;
+                                      rdfs:label "Risultato Martin gara sprint Germania"@it .
+
+
+###  http://www.semanticweb.org/motogp/Rossi
+:Rossi rdf:type owl:NamedIndividual ,
+                :Pilota ;
+       :haCognome "Rossi" ;
+       :haDataNascita "1979-02-16"^^xsd:date ;
+       :haNazionalita "Italiano" ;
+       :haNome "Valentino" ;
+       :haNumeroGara 46 ;
+       :haStagioniDisputate 26 ;
+       rdfs:comment "9 volte campione del mondo. Inserito per illustrare l'inferenza PilotaVeterano."@it ;
+       rdfs:label "Valentino Rossi"@it .
+
+
+###  http://www.semanticweb.org/motogp/Sachsenring
+:Sachsenring rdf:type owl:NamedIndividual ,
+                      :Circuito ;
+             :haNomeCircuito "Sachsenring" ;
+             rdfs:comment "Circuito tedesco."@it ;
+             rdfs:label "Sachsenring"@it .
+
+
+###  http://www.semanticweb.org/motogp/Sprint_Germania_2023
+:Sprint_Germania_2023 rdf:type owl:NamedIndividual ,
+                               :GaraSprint ;
+                      owl:differentFrom :Sprint_Italia_2023 ;
+                      rdfs:comment "Gara sprint del Gran Premio della Germania 2023"@it ;
+                      rdfs:label "Sprint - GP Germania 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Sprint_Italia_2023
+:Sprint_Italia_2023 rdf:type owl:NamedIndividual ,
+                             :GaraSprint ;
+                    rdfs:comment "Gara sprint del Gran Premio d'Italia 2023"@it ;
+                    rdfs:label "Sprint - GP d'Italia 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/StagioneMotoGP2023
+:StagioneMotoGP2023 rdf:type owl:NamedIndividual ,
+                             :Stagione ;
+                    list:hasFirstItem :GP_Italia_2023 ;
+                    :haGranPremio :GP_Germania_2023 ,
+                                  :GP_Italia_2023 ,
+                                  :GP_Olanda_2023 ;
+                    rdfs:comment "Stagione 2023 del campionato MotoGP, composta da una sequenza di Gran Premi"@it ;
+                    rdfs:label "Stagione MotoGP 2023"@it .
+
+
+###  http://www.semanticweb.org/motogp/Tardozzi
+:Tardozzi rdf:type owl:NamedIndividual ,
+                   :TeamManager ;
+          rdfs:comment "Team manager associato al team Ducati Lenovo"@it ;
+          rdfs:label "Davide Tardozzi"@it .
+
+
+#################################################################
+#    General axioms
+#################################################################
+
+[ rdf:type owl:AllDisjointClasses ;
+  owl:members ( :Gara
+                :ProvaLibera
+                :Qualifica
+              )
+] .
+
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :Acosta
+                        :Bagnaia
+                        :Bastianini
+                        :Fernandez
+                        :Holgado
+                        :Martin
+                        :Rossi
+                      )
+] .
+
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :Assen
+                        :Mugello
+                        :Sachsenring
+                      )
+] .
+
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :GP_Germania_2023
+                        :GP_Italia_2023
+                        :GP_Olanda_2023
+                      )
+] .
+
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :Moto2
+                        :Moto3
+                        :MotoGP
+                      )
+] .
+
+
+[ rdf:type owl:AllDifferent ;
+  owl:distinctMembers ( :Risultato_Bagnaia_Germania2023
+                        :Risultato_Bagnaia_Italia2023
+                        :Risultato_Bagnaia_Sprint2023
+                        :Risultato_Bagnaia_Sprint_Germania2023
+                        :Risultato_Martin_Germania2023
+                        :Risultato_Martin_Sprint_Germania2023
+                      )
+] .
+
+
+#################################################################
+#    Rules
+#################################################################
+
+:p rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:gs rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:gp rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:event rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:p1 rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:p2 rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:t rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:r rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:g rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+:pos rdf:type <http://www.w3.org/2003/11/swrl#Variable> .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "Inferisce che due piloti distinti sono compagni di team quando corrono per lo stesso team." ;
+   rdfs:label "CompagniDiTeam" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :Pilota ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :p1
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#classPredicate> :Pilota ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :p2
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :correPer ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :p1 ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :t
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#propertyPredicate> :correPer ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument1> :p2 ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument2> :t
+                                                                                      ] ;
+                                                                            rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                       rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DifferentIndividualsAtom> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#argument1> :p1 ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#argument2> :p2
+                                                                                                 ] ;
+                                                                                       rdf:rest rdf:nil
+                                                                                     ]
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#propertyPredicate> :compagnoDiTeam ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :p1 ;
+                                                       <http://www.w3.org/2003/11/swrl#argument2> :p2
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "Inferisce il team vincitore di una gara partendo dal risultato in prima posizione e dal team del pilota vincitore" ;
+   rdfs:label "TeamVincitore" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :RisultatoGara ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :r
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :riguardaPilota ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :p
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :riguardaGara ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :g
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#propertyPredicate> :haPosizione ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument2> :pos
+                                                                                      ] ;
+                                                                            rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                       rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#equal> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                                rdf:first :pos ;
+                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                           rdf:first 1 ;
+                                                                                                                                                           rdf:rest rdf:nil
+                                                                                                                                                         ]
+                                                                                                                                              ]
+                                                                                                 ] ;
+                                                                                       rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                  rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#propertyPredicate> :correPer ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument1> :p ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument2> :t
+                                                                                                            ] ;
+                                                                                                  rdf:rest rdf:nil
+                                                                                                ]
+                                                                                     ]
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#propertyPredicate> :haTeamVincitore ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :g ;
+                                                       <http://www.w3.org/2003/11/swrl#argument2> :t
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "Inferisce che un pilota ha partecipato a un Gran Premio quando possiede un risultato relativo a una sessione di quel Gran Premio." ;
+   rdfs:label "PartecipazionealGranPremio" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :RisultatoGara ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :r
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :riguardaPilota ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :p
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :riguardaGara ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :g
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#propertyPredicate> :haSessione ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument1> :gp ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument2> :g
+                                                                                      ] ;
+                                                                            rdf:rest rdf:nil
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#propertyPredicate> :haPartecipatoAGranPremio ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :p ;
+                                                       <http://www.w3.org/2003/11/swrl#argument2> :gp
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "La regola inferisce che un pilota ha vinto una gara quando esiste un risultato di gara riferito a quel pilota, riferito a quella gara, con posizione uguale a 1." ;
+   rdfs:label "havinto" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :RisultatoGara ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :r
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :riguardaPilota ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :p
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#propertyPredicate> :riguardaGara ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument2> :g
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#propertyPredicate> :haPosizione ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument2> :pos
+                                                                                      ] ;
+                                                                            rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                       rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#equal> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                                rdf:first :pos ;
+                                                                                                                                                rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                           rdf:first 1 ;
+                                                                                                                                                           rdf:rest rdf:nil
+                                                                                                                                                         ]
+                                                                                                                                              ]
+                                                                                                 ] ;
+                                                                                       rdf:rest rdf:nil
+                                                                                     ]
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#propertyPredicate> :haVintoGara ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :p ;
+                                                       <http://www.w3.org/2003/11/swrl#argument2> :g
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "Classifica automaticamente un risultato come risultato da podio quando la posizione è compresa tra 1 e 3." ;
+   rdfs:label "RisultatoDaPodio" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :RisultatoGara ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :r
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#DatavaluedPropertyAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#propertyPredicate> :haPosizione ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :r ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument2> :pos
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#greaterThanOrEqual> ;
+                                                                             <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                          rdf:first :pos ;
+                                                                                                                          rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                     rdf:first 1 ;
+                                                                                                                                     rdf:rest rdf:nil
+                                                                                                                                   ]
+                                                                                                                        ]
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#BuiltinAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#builtin> <http://www.w3.org/2003/11/swrlb#lessThanOrEqual> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#arguments> [ rdf:type rdf:List ;
+                                                                                                                                     rdf:first :pos ;
+                                                                                                                                     rdf:rest [ rdf:type rdf:List ;
+                                                                                                                                                rdf:first 3 ;
+                                                                                                                                                rdf:rest rdf:nil
+                                                                                                                                              ]
+                                                                                                                                   ]
+                                                                                      ] ;
+                                                                            rdf:rest rdf:nil
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :RisultatoPodio ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :r
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+[ <http://swrl.stanford.edu/ontologies/3.3/swrla.owl#isRuleEnabled> "true"^^xsd:boolean ;
+   rdfs:comment "Inferisce che un pilota ha dominato un weekend quando vince sia la Sprint sia la gara principale dello stesso Gran Premio" ;
+   rdfs:label "DominatoreWeekend" ;
+   rdf:type <http://www.w3.org/2003/11/swrl#Imp> ;
+   <http://www.w3.org/2003/11/swrl#body> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#classPredicate> :Pilota ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :p
+                                                     ] ;
+                                           rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                      rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                                  <http://www.w3.org/2003/11/swrl#classPredicate> :GaraSprint ;
+                                                                  <http://www.w3.org/2003/11/swrl#argument1> :gs
+                                                                ] ;
+                                                      rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                 rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#ClassAtom> ;
+                                                                             <http://www.w3.org/2003/11/swrl#classPredicate> :GaraPrincipale ;
+                                                                             <http://www.w3.org/2003/11/swrl#argument1> :gp
+                                                                           ] ;
+                                                                 rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                            rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                        <http://www.w3.org/2003/11/swrl#propertyPredicate> :haVintoGara ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument1> :p ;
+                                                                                        <http://www.w3.org/2003/11/swrl#argument2> :gs
+                                                                                      ] ;
+                                                                            rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                       rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#propertyPredicate> :haVintoGara ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#argument1> :p ;
+                                                                                                   <http://www.w3.org/2003/11/swrl#argument2> :gp
+                                                                                                 ] ;
+                                                                                       rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                  rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#propertyPredicate> :haSessione ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument1> :event ;
+                                                                                                              <http://www.w3.org/2003/11/swrl#argument2> :gs
+                                                                                                            ] ;
+                                                                                                  rdf:rest [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                                                                                             rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#propertyPredicate> :haSessione ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#argument1> :event ;
+                                                                                                                         <http://www.w3.org/2003/11/swrl#argument2> :gp
+                                                                                                                       ] ;
+                                                                                                             rdf:rest rdf:nil
+                                                                                                           ]
+                                                                                                ]
+                                                                                     ]
+                                                                          ]
+                                                               ]
+                                                    ]
+                                         ] ;
+   <http://www.w3.org/2003/11/swrl#head> [ rdf:type <http://www.w3.org/2003/11/swrl#AtomList> ;
+                                           rdf:first [ rdf:type <http://www.w3.org/2003/11/swrl#IndividualPropertyAtom> ;
+                                                       <http://www.w3.org/2003/11/swrl#propertyPredicate> :haDominatoWeekend ;
+                                                       <http://www.w3.org/2003/11/swrl#argument1> :p ;
+                                                       <http://www.w3.org/2003/11/swrl#argument2> :event
+                                                     ] ;
+                                           rdf:rest rdf:nil
+                                         ]
+ ] .
+
+###  Generated by the OWL API (version 4.5.29.2024-05-13T12:11:03Z) https://github.com/owlcs/owlapi
